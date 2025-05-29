@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('Videocard_link', async ({ page }) => {
+  //я бы не использовал href (только в крайнем случае) DONE
   await page.goto('https://www.onliner.by/');
-  await page.locator('css=a[href="https://catalog.onliner.by/videocard"]').click();
+  await page.locator('//span[text()="Видеокарты"]').click({ force: true });
 });
 
 test('Cat_logo', async ({ page }) => {
@@ -17,13 +18,15 @@ test('All_about_people_page', async ({ page }) => {
 
 test('Main_logo', async ({ page }) => {
   await page.goto('https://www.onliner.by/');
-  await expect(page.locator('//img[contains(@class, "onliner_logo")]')).toBeVisible();
+  await expect(page.locator('//img[@class="onliner_logo"]')).toBeVisible();
 });
 
 test('Main_page_from_sidebar', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
-  await page.locator('.header-style__toggle').click(); //не находит иконку
+  await page.locator('.header-style__toggle').click({ force: true });
+  //падает потому что, гамбургер перекрывается другим элементом и не может кликнуть надо найти решение DONE
+
   await page
     .locator('//span[@class ="header-style__sign" and contains(text(), "Главная страница")]')
     .click();
@@ -32,46 +35,51 @@ test('Main_page_from_sidebar', async ({ page }) => {
 test('Catalog_from_sidebar', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
-  await page.locator('.header-style__toggle').click();
-  await expect(page.getByRole('link', { name: 'Каталог' })).toBeVisible();
+  await page.locator('.header-style__toggle').click({ force: true });
+  //падает потому что, гамбургер перекрывается другим элементом и не может кликнуть надо найти решение DONE
+  await expect(
+    page.locator(
+      '//a[@class="header-style__link header-style__link_primary"]/span[text() = "Каталог"]',
+    ),
+  ).toBeVisible();
 });
 
 test('Search_form', async ({ page }) => {
+  //непонятно, что делает тест. в мобильном виде не видно строки поиска, для десктопа не тот локатор DONE
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
-  await page.locator('.fast-search__form').click();
-  await page.getByPlaceholder('Поиск').and(page.locator('.search__input.ym-record-keys')).click();
+  await page.locator('//*[@id="fast-search"]/div/input').click({ force: true });
+  await expect(page.getByRole('textbox')).toBeEnabled();
 });
 
-test('Not_visible_element_with_alt', async ({ page }) => {
-  await page.goto('https://www.onliner.by/');
-  await expect(page.getByAltText('').locator('img[src$="1911064"]')).toBeHidden();
+test('Alt_selector_for_logo', async ({ page }) => {
+  //тест проходит, но пример не очень. лучше поискать другой DONE
+
+  await page.goto('https://blog.onliner.by/manifest');
+  await expect(page.getByAltText('Onlíner')).toBeVisible();
 });
 
 //getByLabel()
 //- на сайте не нашла текст внутри <label>
 
-test('OrderHistory_from_sidebar', async ({ page }) => {
+test('Houses&apartments_from_sidebar', async ({ page }) => {
+  //это не работает, падает по таймауту. возможно история заказов не видна для незалоганного юзера. и опять href лучше не использовать DONE
+
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
-  await page.locator('.header-style__toggle').click();
+  await page.locator('.header-style__toggle').click({ force: true });
   await expect(
-    page
-      .getByRole('link', { name: 'История заказов' })
-      .and(page.locator('a[href="https://cart.onliner.by/orders"]')),
+    page.getByText('Дома и квартиры', { exact: true }).and(page.locator('.header-style__sign')),
   ).toBeVisible();
 });
 
 test('Tariffs', async ({ page }) => {
+  //ок кроме href DONE
   await page.goto('https://www.onliner.by/');
   await expect(
     page
       .getByText('Тарифы', { exact: true })
-      .or(
-        page.locator(
-          '[href="https://docs.google.com/spreadsheets/d/1SGFaTkV_Ru4vI29ml9yvR-dMz9rOl7DVVpKk64w5lqM/preview"]',
-        ),
-      ),
+      .or(page.getByRole('listitem', { name: 'Тарифы', exact: true })),
   ).toBeVisible();
 });
 
