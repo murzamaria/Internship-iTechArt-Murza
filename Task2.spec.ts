@@ -4,46 +4,77 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-test('Student_Registration_Form', async ({ page }) => {
+//добавить проверку first name
+test('Student_Registration_Form_First_Name', async ({ page }) => {
   await page.goto('https://demoqa.com/automation-practice-form');
-  //- locator.fill()
   await page.getByPlaceholder('First Name').fill('Ivan');
+  const FirstName = await page.getByPlaceholder('First Name').inputValue();
+  expect(FirstName).toBe('Ivan');
+});
 
-  //- locator.inputValue()
+test('Student_Registration_Form_Last_Name', async ({ page }) => {
+  await page.goto('https://demoqa.com/automation-practice-form');
   await page.getByPlaceholder('Last Name').fill('Ivanov');
   const LastName = await page.getByPlaceholder('Last Name').inputValue();
   expect(LastName).toBe('Ivanov');
 
-  //- locator.press() – клавиатурные комбинации
   await page.getByPlaceholder('Last Name').press('Control+A');
   await page.getByPlaceholder('Last Name').press('Delete');
-
-  //- locator.check() - для checkbox и radio button - https://demoqa.com/automation-practice-form
-  //- locator.click()
-  await page.locator('label[for="gender-radio-1"]').check({ force: true });
+  //добавить проверку, что удалено
+  const LastNameDeleted = await page.getByPlaceholder('Last Name').inputValue();
+  await expect(LastNameDeleted).toBe('');
 });
 
-// - locator.hover() - https://demoqa.com/menu#
+test('Student_Registration_Form_Gender', async ({ page }) => {
+  await page.goto('https://demoqa.com/automation-practice-form');
+  await page.locator('label[for="gender-radio-1"]').check({ force: true });
+  //добавить проверку, что чекнуто
+  await expect(page.locator('label[for="gender-radio-1"]')).toBeChecked();
+});
+
+test('Student_Registration_Form_DateofBirth', async ({ page }) => {
+  await page.goto('https://demoqa.com/automation-practice-form');
+  await page.locator('input#dateOfBirthInput').click();
+  await expect(page.locator('.react-datepicker__month-container')).toBeVisible(); //проверяю открылся ли контейнер с календарём
+});
+
+//-blur() применение - с выпад.списком не получилось, т.к. это не дом-элемент, поэтому слайдер взяла
+test('Slider', async ({ page }) => {
+  await page.goto('https://demoqa.com/slider');
+  await page.locator('.range-slider.range-slider--primary').click(); //фокус на слайдере
+  const value1 = Number(await page.locator('#sliderValue').getAttribute('value'));
+
+  await page.locator('.range-slider.range-slider--primary').press('ArrowLeft');
+  const value2 = Number(await page.locator('#sliderValue').getAttribute('value'));
+  await expect(value2).toBe(value1 - 1);
+
+  await page.locator('.range-slider.range-slider--primary').blur(); //расфокус
+  await page.keyboard.press('ArrowLeft');
+  const value3 = Number(await page.locator('#sliderValue').getAttribute('value'));
+  await expect(value2).toBe(value3);
+});
+
 test('Menu', async ({ page }) => {
   await page.goto('https://demoqa.com/menu#');
   await page.getByRole('link', { name: 'Main Item 2' }).hover();
+  //добавить проверку, что меню открылось и видно
+  await expect(page.getByRole('link', { name: 'Sub Item' }).first()).toBeVisible();
 });
 
-// - locator.setInputFiles() - https://demoqa.com/upload-download
 test('Image_Upload', async ({ page }) => {
   await page.goto('https://demoqa.com/upload-download');
   await page.getByLabel('Select a file').setInputFiles(path.join(__dirname, 'testimage.jfif'));
+  //добавить проверку, что файл загружен
+  await expect(page.locator('#uploadedFilePath')).toContainText('testimage.jfif');
 });
 
-//  - drag & drop - https://demoqa.com/droppable
 test('Drag&Drop', async ({ page }) => {
   await page.goto('https://demoqa.com/droppable');
   await page.locator('#draggable').dragTo(page.locator('.simple-drop-container #droppable'));
+  //добавить проверку
+  await expect(page.locator('.drop-box.ui-droppable.ui-state-highlight p')).toHaveText('Dropped!');
 });
 
-//- locator.allInnerTexts()
-//- locator.count()
 test('All_Sections_Names', async ({ page }) => {
   await page.goto('https://demoqa.com/');
   const names = await page.locator('.card-body').allInnerTexts();
@@ -52,34 +83,37 @@ test('All_Sections_Names', async ({ page }) => {
   expect(count).toBe(6);
 });
 
-//- locator.innerText()
 test('1stSection_Name', async ({ page }) => {
   await page.goto('https://demoqa.com/');
   const name = await page.locator('.card-body').first().innerText();
   expect(name).toBe('Elements');
 });
 
-//- locator.blur()
-test('Select_Menu', async ({ page }) => {
+test('Multiselect drop down', async ({ page }) => {
   await page.goto('https://demoqa.com/select-menu');
-  const Select4 = page.locator('#react-select-4-input').locator('..').locator('..').locator('..');
-  await Select4.click();
-  await Select4.blur();
-
-  //  .toHaveAttribute()
-  //- locator.getAttribute(name)
   const autocomplete = await page.locator('#react-select-4-input').getAttribute('autocomplete');
   expect(autocomplete).toBe('off');
+});
 
-  // .toHaveURL()
+test('Select One', async ({ page }) => {
+  await page.goto('https://demoqa.com/select-menu');
   await expect(page).toHaveURL('https://demoqa.com/select-menu');
   const Select3 = page.locator('input#react-select-3-input');
   await expect(Select3).toHaveAttribute('autocomplete', 'off');
+});
+
+//что делает тест? как проверить? - здесь был блюр, который не применялся, оставила тест .toHaveValue(), блюр в тесте "Selector"
+test('Old Style Select Menu', async ({ page }) => {
+  await page.goto('https://demoqa.com/select-menu');
+  const OldStyleMenu = page.locator('#oldSelectMenu');
 
   //  .toHaveValue()
-  await expect(page.locator('#oldSelectMenu')).toHaveValue('red');
+  await expect(OldStyleMenu).toHaveValue('red');
+});
 
-  // - locator.selectOption()
+// - locator.selectOption()
+test('Standart multi select Cars', async ({ page }) => {
+  await page.goto('https://demoqa.com/select-menu');
   await page.locator('#cars').selectOption('Volvo');
 });
 
