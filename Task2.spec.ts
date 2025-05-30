@@ -18,7 +18,10 @@ test('Student_Registration_Form_Last_Name', async ({ page }) => {
   const LastName = await page.getByPlaceholder('Last Name').inputValue();
   expect(LastName).toBe('Ivanov');
 
-  await page.getByPlaceholder('Last Name').press('Control+A');
+  const isMac = process.platform === 'darwin';
+  const modifier = isMac ? 'Meta' : 'Control'; // проверка на ос
+
+  await page.getByPlaceholder('Last Name').press(`${modifier}+A`);
   await page.getByPlaceholder('Last Name').press('Delete');
   //добавить проверку, что удалено
   const LastNameDeleted = await page.getByPlaceholder('Last Name').inputValue();
