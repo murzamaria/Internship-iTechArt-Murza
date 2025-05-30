@@ -49,9 +49,12 @@ test('Search_form', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
   await page.locator('input.fast-search__input').click({ force: true });
-  await expect(page.getByRole('textbox')).toBeEnabled();
+
+  const frame = page.frameLocator('iframe[class="modal-iframe"]');
+  const searchInput = frame.locator('input.search__input.ym-record-keys');
+
+  await expect(searchInput).toBeEnabled();
 });
-// //*[@id="fast-search"]/div/input
 
 test('Alt_selector_for_logo', async ({ page }) => {
   //тест проходит, но пример не очень. лучше поискать другой DONE
