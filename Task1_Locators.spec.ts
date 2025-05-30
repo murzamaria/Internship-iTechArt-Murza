@@ -48,9 +48,10 @@ test('Search_form', async ({ page }) => {
   //непонятно, что делает тест. в мобильном виде не видно строки поиска, для десктопа не тот локатор DONE
   await page.setViewportSize({ width: 1000, height: 800 }); //sidebar появляется только, если ширина окна =<1000
   await page.goto('https://www.onliner.by/');
-  await page.locator('//*[@id="fast-search"]/div/input').click({ force: true });
+  await page.locator('input.fast-search__input').click({ force: true });
   await expect(page.getByRole('textbox')).toBeEnabled();
 });
+// //*[@id="fast-search"]/div/input
 
 test('Alt_selector_for_logo', async ({ page }) => {
   //тест проходит, но пример не очень. лучше поискать другой DONE
