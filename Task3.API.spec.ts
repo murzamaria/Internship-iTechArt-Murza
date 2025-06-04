@@ -7,74 +7,18 @@ test.beforeAll(async () => {
   creds = JSON.parse(data);
 });
 
-test('Login to profile', async ({ browser }) => {
-  //логинюсь через пост запрос и сохраняю кукис в state.js, т.к. httpCredentials не работает с https
-  const apiContext = await request.newContext();
-  const loginResponse = await apiContext.post('https://demoqa.com/Account/v1/Login', {
-    data: {
-      userName: creds.username,
-      password: creds.password,
-    },
-  });
-
-  const loginData = await loginResponse.json();
-
-  await fs.writeFile(
-    'state.json',
-    JSON.stringify({
-      cookies: [
-        {
-          name: 'userName',
-          value: creds.username,
-          domain: 'demoqa.com',
-          path: '/',
-          httpOnly: false,
-          secure: false,
-          sameSite: 'Lax',
-        },
-        {
-          name: 'token',
-          value: loginData.token,
-          domain: 'demoqa.com',
-          path: '/',
-          httpOnly: false,
-          secure: false,
-          sameSite: 'Lax',
-        },
-        {
-          name: 'userID',
-          value: loginData.userId,
-          domain: 'demoqa.com',
-          path: '/',
-          httpOnly: false,
-          secure: false,
-          sameSite: 'Lax',
-        },
-        {
-          name: 'expires',
-          value: loginData.expires,
-          domain: 'demoqa.com',
-          path: '/',
-          httpOnly: false,
-          secure: false,
-          sameSite: 'Lax',
-        },
-      ],
-      origins: [],
-    }),
-  );
-
-  //создаю контекст и проверяю, что пользователь авторизован
-  const context = await browser.newContext({ storageState: 'state.json' });
+test('Task3', async ({ browser }) => {
+  const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('https://demoqa.com/profile');
-  await expect(page.getByRole('button', { name: 'Log out' })).toBeEnabled();
-});
+  await page.goto('https://demoqa.com/login');
+  await page.getByPlaceholder('UserName').fill(creds.username);
+  await page.getByPlaceholder('Password').fill(creds.password);
+  await page.getByRole('button', { name: 'Login' }).click();
+  await page.waitForURL('**/profile', { timeout: 10000 });
 
-test('Bookstore', async ({ browser }) => {
-  const context = await browser.newContext({ storageState: 'state.json' });
-  const page = await context.newPage();
-  await page.goto('https://demoqa.com/profile');
+  // проверяю, что пользователь авторизован
+  await expect(page).toHaveURL('https://demoqa.com/profile');
+  await expect(page.getByText('Log out')).toBeEnabled();
 
   //проверка куков: userID, userName, expires, token
   const cookies = await context.cookies();
@@ -88,7 +32,8 @@ test('Bookstore', async ({ browser }) => {
 
   const expires = cookies.find((c) => c.name === 'expires');
   const nowTime = Date.now();
-  const expiresTime = expires ? new Date(expires.value).getTime() : 0;
+  const decoded = expires?.value ? decodeURIComponent(expires.value) : '';
+  const expiresTime = decoded ? new Date(decoded).getTime() : 0;
   await expect(expiresTime).toBeGreaterThan(nowTime);
 
   const token = cookies.find((c) => c.name === 'token');
@@ -111,11 +56,10 @@ test('Bookstore', async ({ browser }) => {
   await expect(response.ok()).toBeTruthy();
   const json = await response.json();
   const booksArray = json.books;
-  const booksCountUI = await page.locator('.mr-2').count();
-  await expect(booksArray.length).toEqual(booksCountUI);
+  await expect(page.locator('.mr-2')).toHaveCount(booksArray.length);
 
   // функция рандомайзера
-  function getRandomPages(min = 1, max = 50) {
+  function getRandomPages(min = 1, max = 1000) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   //модификация запроса
@@ -131,6 +75,7 @@ test('Bookstore', async ({ browser }) => {
   });
 
   //кликнуть на случайную книгу
+  const booksCountUI = await page.locator('.mr-2').count();
   const randomBook = Math.floor(Math.random() * booksCountUI);
   await page.locator('//*[@role="rowgroup"]').nth(randomBook).click();
 
@@ -144,6 +89,6 @@ test('Bookstore', async ({ browser }) => {
   // - проверить ответ
   await expect(responsePW.ok()).toBeTruthy();
   const userData = await responsePW.json();
-  await expect(Array.isArray(userData.books)).toBeTruthy();
+  await expect(userData.books).toEqual([]);
   await expect(userData.username).toMatch(creds.username);
 });
