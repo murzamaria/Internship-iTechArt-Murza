@@ -106,6 +106,5 @@ test('New_for_24hs_section', async ({ page }) => {
 test('List_of__footer-style_items', async ({ page }) => {
   await page.goto('https://www.onliner.by/');
   const items = page.locator('.footer-style__item');
-  const count = await items.count();
   await expect(items).toHaveCount(12);
 });
