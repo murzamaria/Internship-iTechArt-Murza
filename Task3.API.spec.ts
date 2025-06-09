@@ -15,34 +15,41 @@ test('Task3', async ({ browser }) => {
     await page.getByPlaceholder('UserName').fill(process.env.DEMO_QA_USERNAME!);
     await page.getByPlaceholder('Password').fill(process.env.DEMO_QA_PASSWORD!);
     await page.getByRole('button', { name: 'Login' }).click();
-    await page.waitForURL('https://demoqa.com/profile', { timeout: 10000 });
+    await page.waitForURL('https://demoqa.com/profile', { timeout: 20000 });
 
     await expect(page).toHaveURL('https://demoqa.com/profile');
     await expect(page.getByText('Log out')).toBeEnabled();
   });
 
-  await test.step('Cookies checks', async () => {
-    const cookies = await context.cookies();
+  const cookies = await context.cookies();
 
+  await test.step('UserID check in cookies', async () => {
     userID = cookies.find((c) => c.name === 'userID')?.value;
     expect(userID).toBeTruthy();
     await expect(userID).not.toBe('');
+  });
 
+  await test.step('UserName check in cookies', async () => {
     const userName = cookies.find((c) => c.name === 'userName');
     await expect(userName?.value).toEqual(process.env.DEMO_QA_USERNAME!);
+  });
 
+  await test.step('Expires time check in cookies', async () => {
     const expires = cookies.find((c) => c.name === 'expires');
     const nowTime = Date.now();
     const decoded = expires?.value ? decodeURIComponent(expires.value) : '';
     const expiresTime = decoded ? new Date(decoded).getTime() : 0;
     await expect(expiresTime).toBeGreaterThan(nowTime);
+  });
 
+  await test.step('Token check in cookies', async () => {
     token = cookies.find((c) => c.name === 'token')?.value;
     expect(token).toBeTruthy();
     await expect(token).toMatch(/[a-zA-Z0-9]/);
   });
 
   await test.step('Books Store checks and screenshot', async () => {
+    test.setTimeout(60_000);
     await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
     const [response] = await Promise.all([
       page.waitForResponse('https://demoqa.com/BookStore/v1/Books'),
@@ -81,8 +88,8 @@ test('Task3', async ({ browser }) => {
     await page.locator('//*[@role="rowgroup"]').nth(randomBook).click();
   });
 
-  //выполнить API запрос (с помощью PW)
   await test.step('User Data check', async () => {
+    //выполнить API запрос (с помощью PW)
     const responsePW = await page.request.get(`https://demoqa.com/Account/v1/User/${userID}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -90,6 +97,7 @@ test('Task3', async ({ browser }) => {
     });
 
     // - проверить ответ
+    console.log('Status:', responsePW.status());
     await expect(responsePW.ok()).toBeTruthy();
     const userData = await responsePW.json();
     await expect(userData.books).toEqual([]);

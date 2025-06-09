@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './Internship-Itechart-Murza',
+  testDir: './',
   timeout: 30 * 1000,
   expect: {
     timeout: 5000,
@@ -10,10 +10,10 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
 
   use: {
+    headless: true,
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    headless: false,
     viewport: { width: 1280, height: 720 },
   },
 
