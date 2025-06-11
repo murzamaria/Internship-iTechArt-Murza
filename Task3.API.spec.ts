@@ -1,94 +1,125 @@
-import { test, expect, request } from '@playwright/test';
-import fs from 'fs/promises';
-
-let creds: { username: string; password: string };
-test.beforeAll(async () => {
-  const data = await fs.readFile('properties.json', 'utf-8');
-  creds = JSON.parse(data);
-});
+import { test, expect } from '@playwright/test';
 
 test('Task3', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('https://demoqa.com/login');
-  await page.getByPlaceholder('UserName').fill(creds.username);
-  await page.getByPlaceholder('Password').fill(creds.password);
-  await page.getByRole('button', { name: 'Login' }).click();
-  await page.waitForURL('**/profile', { timeout: 10000 });
 
-  // проверяю, что пользователь авторизован
-  await expect(page).toHaveURL('https://demoqa.com/profile');
-  await expect(page.getByText('Log out')).toBeEnabled();
+  let userID: string | undefined;
+  let token: string | undefined;
 
-  //проверка куков: userID, userName, expires, token
+  await test.step('Open login page', async () => {
+    await page.goto('https://demoqa.com/login');
+  });
+  await test.step('Fill in the username and password', async () => {
+    await page.getByPlaceholder('UserName').fill(process.env.DEMO_QA_USERNAME!);
+    await page.getByPlaceholder('Password').fill(process.env.DEMO_QA_PASSWORD!);
+  });
+  await test.step('Check for successful login', async () => {
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForURL('https://demoqa.com/profile', { timeout: 30000 });
+    await expect(page).toHaveURL('https://demoqa.com/profile');
+    await expect(page.getByText('Log out')).toBeEnabled();
+  });
+
   const cookies = await context.cookies();
 
-  const userID = cookies.find((c) => c.name === 'userID');
-  expect(userID).toBeTruthy();
-  await expect(userID?.value).not.toBe('');
+  await test.step('UserID check in cookies', async () => {
+    userID = cookies.find((c) => c.name === 'userID')?.value;
+    await expect(userID).toBeTruthy();
+    await expect(userID).not.toBe('');
+  });
 
-  const userName = cookies.find((c) => c.name === 'userName');
-  await expect(userName?.value).toEqual(creds.username);
+  await test.step('UserName check in cookies', async () => {
+    const userName = cookies.find((c) => c.name === 'userName');
+    await expect(userName?.value).toEqual(process.env.DEMO_QA_USERNAME!);
+  });
 
-  const expires = cookies.find((c) => c.name === 'expires');
-  const nowTime = Date.now();
-  const decoded = expires?.value ? decodeURIComponent(expires.value) : '';
-  const expiresTime = decoded ? new Date(decoded).getTime() : 0;
-  await expect(expiresTime).toBeGreaterThan(nowTime);
+  let expires;
+  let decodedTime;
+  let expiresTime;
 
-  const token = cookies.find((c) => c.name === 'token');
-  expect(token).toBeTruthy();
-  await expect(token?.value).toMatch(/[a-zA-Z0-9]/);
+  await test.step('Get expires time cookie', async () => {
+    expires = cookies.find((c) => c.name === 'expires');
+  });
 
-  // - через page.route заблокировать все картинки
-  // - через page.waitForResponse создать ожидание для перехвата GET запроса https://demoqa.com/BookStore/v1/Books
-  // - в меню слева кликнуть Book Store
-  // скриншот
+  await test.step('Decode expires time value', async () => {
+    decodedTime = expires?.value ? decodeURIComponent(expires.value) : '';
+    expiresTime = decodedTime ? new Date(decodedTime).getTime() : 0;
+  });
+  await test.step('Expires time check', async () => {
+    const nowTime = Date.now();
+    await expect(expiresTime).toBeGreaterThan(nowTime);
+  });
 
-  await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
-  const [response] = await Promise.all([
-    page.waitForResponse('https://demoqa.com/BookStore/v1/Books'),
-    page.getByText('Book Store', { exact: true }).click(),
-  ]);
-  await page.screenshot({ path: 'screenshot.png', fullPage: true });
+  await test.step('Token check in cookies', async () => {
+    token = cookies.find((c) => c.name === 'token')?.value;
+    await expect(token).toBeTruthy();
+    await expect(token).toMatch(/[a-zA-Z0-9]/);
+  });
 
-  //проверить перехваченный GET запрос
-  await expect(response.ok()).toBeTruthy();
-  const json = await response.json();
-  const booksArray = json.books;
-  await expect(page.locator('.mr-2')).toHaveCount(booksArray.length);
+  let responseBookstore;
+  await test.step('Set timeout and block images', async () => {
+    test.setTimeout(60_000);
+    await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
+  });
 
-  // функция рандомайзера
+  await test.step('Capture response from Bookstore', async () => {
+    [responseBookstore] = await Promise.all([
+      page.waitForResponse('https://demoqa.com/BookStore/v1/Books'),
+      page.getByText('Book Store', { exact: true }).click(),
+    ]);
+  });
+
+  await test.step('Take screenshot', async () => {
+    await page.screenshot({ path: 'screenshot.png', fullPage: true });
+  });
+
+  await test.step('Books amount check', async () => {
+    await expect(responseBookstore.ok()).toBeTruthy();
+    const json = await responseBookstore.json();
+    const booksArray = json.books;
+    await expect(page.locator('.mr-2')).toHaveCount(booksArray.length);
+  });
+
   function getRandomPages(min = 1, max = 1000) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-  //модификация запроса
-  await page.route('https://demoqa.com/BookStore/v1/Book', async (route) => {
-    const response = await route.fetch();
-    const json = await response.json();
-    json.pages = getRandomPages();
 
-    await route.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify(json),
+  await test.step('Modify book pages in the response', async () => {
+    await page.route('https://demoqa.com/BookStore/v1/Book', async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.pages = getRandomPages();
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(json),
+      });
     });
   });
 
-  //кликнуть на случайную книгу
-  const booksCountUI = await page.locator('.mr-2').count();
-  const randomBook = Math.floor(Math.random() * booksCountUI);
-  await page.locator('//*[@role="rowgroup"]').nth(randomBook).click();
-
-  //выполнить API запрос (с помощью PW)
-  const responsePW = await page.request.get(`https://demoqa.com/Account/v1/User/${userID?.value}`, {
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
+  await test.step('Click random book', async () => {
+    const booksCountUI = await page.locator('.mr-2').count();
+    const randomBook = Math.floor(Math.random() * booksCountUI);
+    await page.locator('//*[@role="rowgroup"]').nth(randomBook).click();
   });
 
-  // - проверить ответ
-  await expect(responsePW.ok()).toBeTruthy();
-  const userData = await responsePW.json();
-  await expect(userData.books).toEqual([]);
-  await expect(userData.username).toMatch(creds.username);
+  let responseUserdata;
+  await test.step('API request for userdata', async () => {
+    responseUserdata = await page.request.get(`https://demoqa.com/Account/v1/User/${userID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  });
+  await test.step('Check for successful userdata response', async () => {
+    // - проверить ответ
+    console.log('Status:', responseUserdata.status());
+    await expect(responseUserdata.ok()).toBeTruthy();
+  });
+
+  await test.step('Check userdata', async () => {
+    const userData = await responseUserdata.json();
+    await expect(userData.books).toEqual([]);
+    await expect(userData.username).toMatch(process.env.DEMO_QA_USERNAME!);
+  });
 });
