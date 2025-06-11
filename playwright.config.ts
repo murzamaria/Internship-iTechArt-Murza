@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { CustomLogger } from './custom-logger';
 
 export default defineConfig({
   testDir: './',
@@ -15,6 +16,9 @@ export default defineConfig({
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     viewport: { width: 1280, height: 720 },
+    launchOptions: {
+      logger: new CustomLogger(),
+    },
   },
 
   projects: [
