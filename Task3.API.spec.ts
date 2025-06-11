@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-import dotenv from 'dotenv';
-dotenv.config();
-
 test('Task3', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
