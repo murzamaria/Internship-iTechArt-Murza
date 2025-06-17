@@ -1,23 +1,20 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from '../pages/BasePage';
 
-export class LoginPage {
-  readonly page: Page;
+export class LoginPage extends BasePage {
   readonly usernameInput: Locator;
   readonly passwordInput: Locator;
   readonly loginButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.usernameInput = page.getByPlaceholder('UserName');
     this.passwordInput = page.getByPlaceholder('Password');
     this.loginButton = page.getByRole('button', { name: 'Login' });
   }
 
   async goto() {
-    await this.page.goto('https://demoqa.com/login', {
-      waitUntil: 'domcontentloaded',
-      timeout: 60000,
-    });
+    await super.goto('/login');
   }
 
   async login(username: string, password: string) {
@@ -26,7 +23,7 @@ export class LoginPage {
     await expect(this.loginButton).toBeVisible();
     await expect(this.loginButton).toBeEnabled();
     await this.loginButton.click();
-    await this.page.waitForURL('https://demoqa.com/profile', { timeout: 40000 });
+    await this.page.waitForURL(`${process.env.BASE_URL!}/profile`, { timeout: 40000 });
   }
 
   async loginAndGetCookies(username: string, password: string) {
