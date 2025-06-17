@@ -2,4 +2,4 @@
 .env
 /test-results
 /playwright-report
-screenshot.png
+/screenshots

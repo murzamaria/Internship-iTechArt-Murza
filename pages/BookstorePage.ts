@@ -1,5 +1,7 @@
 import { Locator } from '@playwright/test';
 import { BasePage } from '../pages/BasePage';
+import { getRandom } from '../utils/getRandom';
+import { Menu } from './MenuList';
 
 export class BookstorePage extends BasePage {
   readonly bookItem: Locator;
@@ -13,18 +15,18 @@ export class BookstorePage extends BasePage {
     await super.goto('/books');
   }
 
-  async goToBookStore() {
-    await this.page.getByText('Book Store', { exact: true }).click();
-  }
-
   async clickRandomBook() {
     const booksCountUI = await this.page.locator('.mr-2').count();
-    const randomBook = Math.floor(Math.random() * booksCountUI);
+    const randomBook = await getRandom(1, booksCountUI);
     await this.page.locator('//*[@role="rowgroup"]').nth(randomBook).click();
   }
 
   async getBookstoreResponse() {
-    const response = await this.page.waitForResponse(`${process.env.BASE_URL!}/BookStore/v1/Books`);
+    const menu = new Menu(this.page);
+    const [response] = await Promise.all([
+      this.page.waitForResponse(`${process.env.BASE_URL!}/BookStore/v1/Books`),
+      menu.clickBookStore(),
+    ]);
     return response;
   }
 }

@@ -25,19 +25,4 @@ export class LoginPage extends BasePage {
     await this.loginButton.click();
     await this.page.waitForURL(`${process.env.BASE_URL!}/profile`, { timeout: 40000 });
   }
-
-  async loginAndGetCookies(username: string, password: string) {
-    await this.goto();
-    await this.login(username, password);
-
-    const context = this.page.context();
-    const cookies = await context.cookies();
-
-    const userID = cookies.find((c) => c.name === 'userID')?.value;
-    const userName = cookies.find((c) => c.name === 'userName');
-    const expires = cookies.find((c) => c.name === 'expires');
-    const token = cookies.find((c) => c.name === 'token')?.value;
-
-    return { userID, userName, expires, token };
-  }
 }
