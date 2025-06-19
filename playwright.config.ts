@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
-  testDir: './',
-  timeout: 30 * 1000,
+  testDir: 'tests',
+  timeout: 70 * 1000,
   expect: {
     timeout: 5000,
   },
@@ -17,7 +17,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    viewport: { width: 1280, height: 720 },
+    //viewport: { width: 1280, height: 720 },
     launchOptions: {
       logger: new CustomLogger(),
     },
@@ -38,6 +38,7 @@ export default defineConfig({
     },
     {
       name: 'WebKit',
+      timeout: 80 * 1000,
       use: {
         browserName: 'webkit',
       },

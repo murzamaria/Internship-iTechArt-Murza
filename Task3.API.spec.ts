@@ -58,6 +58,7 @@ test('Task3', async ({ browser }) => {
   });
 
   let responseBookstore;
+
   await test.step('Set timeout and block images', async () => {
     test.setTimeout(60_000);
     await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
@@ -112,7 +113,6 @@ test('Task3', async ({ browser }) => {
     });
   });
   await test.step('Check for successful userdata response', async () => {
-    // - проверить ответ
     console.log('Status:', responseUserdata.status());
     await expect(responseUserdata.ok()).toBeTruthy();
   });
