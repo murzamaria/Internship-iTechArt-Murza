@@ -9,6 +9,5 @@ export async function getCookies(page: Page, cookieNames: string[]) {
     const value = cookies.find((c) => c.name === cookie)?.value;
     result[cookie] = value;
   }
-  // console.log(result);
   return result;
 }

@@ -95,7 +95,6 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   });
 
   await test.step('Check for successful userdata response', async () => {
-    //console.log('Status:', responseUserdata.status());
     await expect(responseUserdata.ok()).toBeTruthy();
   });
 
