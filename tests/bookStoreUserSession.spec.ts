@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-//import { LoginPage } from '../pages/loginPage';
 import { BookstorePage } from '../pages/bookstorePage';
 import { ProfilePage } from '../pages/profilePage';
 import { blockImages } from '../utils/blockImages';
@@ -11,7 +10,6 @@ import { getUserdata } from '../utils/getUserdata';
 import { modifyBookInfo } from '../utils/modifyBookInfo';
 
 test('Full session test: login, cookie validation, bookstore API&UI checks', async ({ page }) => {
-  //const loginPage = new LoginPage(page);
   const bookstorePage = new BookstorePage(page);
   const profilePage = new ProfilePage(page);
 
@@ -19,11 +17,6 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   let userName;
   let expires;
   let token;
-
-  /*  await test.step('Login with valid creds', async () => {
-    await loginPage.goto();
-    await loginPage.login(process.env.DEMO_QA_USERNAME!, process.env.DEMO_QA_PASSWORD!);
-  }); */
 
   await test.step('Check for successful login', async () => {
     await profilePage.goto();
