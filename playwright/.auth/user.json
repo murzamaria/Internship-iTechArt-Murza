@@ -1,0 +1,323 @@
+{
+  "cookies": [
+    {
+      "name": "_ga",
+      "value": "GA1.2.1059554920.1750639556",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1785199555.789691,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gid",
+      "value": "GA1.2.1792976236.1750639556",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1750725955,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gat_UA-109033876-1",
+      "value": "1",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1750639615,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__gads",
+      "value": "ID=dbf0dd86cc44d9a8:T=1750639554:RT=1750639554:S=ALNI_MaccB5_sfYuKKTeAMnlmk8pUUWZHw",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1784335554,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__gpi",
+      "value": "UID=000010e520b4a7b2:T=1750639554:RT=1750639554:S=ALNI_MZkCIeivrxCiNj9rSdZbfzTGF94gQ",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1784335554,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__eoi",
+      "value": "ID=ea57748d029b0f6f:T=1750639554:RT=1750639554:S=AA-AfjalG1NtemB5vkAhej5TzFv4",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1766191554,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "IDE",
+      "value": "AHWqTUmlvM0dIF6Dx7Eb4t_um44hqSIjsgJZAxTitD8qJKohDTkDNN2hEyLdEiXr5Zg",
+      "domain": ".doubleclick.net",
+      "path": "/",
+      "expires": 1785199555.984983,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "uid",
+      "value": "3be193e0-a5fb-45fa-aee9-35c094c732e7",
+      "domain": ".criteo.com",
+      "path": "/",
+      "expires": 1784335556.227965,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "i",
+      "value": "c805b344-ad07-4d18-b8b3-8568b0fadc87|1750639555",
+      "domain": ".openx.net",
+      "path": "/",
+      "expires": 1782175556.605492,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cc_dc",
+      "value": "1",
+      "domain": ".crwdcntrl.net",
+      "path": "/",
+      "expires": 1773964981.311169,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cc_id",
+      "value": "d85e7f78d2c7625123d18a8327839273",
+      "domain": ".crwdcntrl.net",
+      "path": "/",
+      "expires": 1773964981.311337,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cc_id",
+      "value": "d85e7f78d2c7625123d18a8327839273",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1773967556,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "panoramaId_expiry",
+      "value": "1750725955516",
+      "domain": ".demoqa.com",
+      "path": "/",
+      "expires": 1750725956,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "pd",
+      "value": "v2|1750639555|guvNiygen0",
+      "domain": ".openx.net",
+      "path": "/",
+      "expires": 1751935556.605681,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "mc",
+      "value": "6858a3c4-2127c-fc8bf-1d065",
+      "domain": ".quantserve.com",
+      "path": "/",
+      "expires": 1784853956.938369,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sp",
+      "value": "CggIknESAxDQDw==",
+      "domain": ".quantserve.com",
+      "path": "/",
+      "expires": 1758415557.008691,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "C",
+      "value": "1",
+      "domain": ".adform.net",
+      "path": "/",
+      "expires": 1753231557.020793,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "uid",
+      "value": "2990942053238279342",
+      "domain": ".adform.net",
+      "path": "/",
+      "expires": 1755823557.093923,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ar_debug",
+      "value": "1",
+      "domain": ".googleadservices.com",
+      "path": "/",
+      "expires": 1758415559.037979,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "DSID",
+      "value": "NO_DATA",
+      "domain": ".doubleclick.net",
+      "path": "/",
+      "expires": 1750643159.322819,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlVzZXJNIiwicGFzc3dvcmQiOiJnc04ydWIhN3VQd0diQXIiLCJpYXQiOjE3NTA2Mzk1NTd9.ME4T1GJ2kgnrbU-IxEfH1D6Zq8ecLteV6MWCMx98Dxw",
+      "domain": "demoqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "expires",
+      "value": "2025-06-30T00%3A45%3A57.761Z",
+      "domain": "demoqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "userID",
+      "value": "79d26171-e77d-4312-966b-8dbe22e9c4f9",
+      "domain": "demoqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "userName",
+      "value": "UserM",
+      "domain": "demoqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://demoqa.com",
+      "localStorage": [
+        {
+          "name": "_GESPSK-pubcid.org",
+          "value": "[\"pubcid.org\",null,1750639555528,null,null,null,null,null,null,[100]]"
+        },
+        {
+          "name": "_GESPSK-crwdcntrl.net",
+          "value": "[\"crwdcntrl.net\",\"\",1750639556321,null,null,null,null,null,0]"
+        },
+        {
+          "name": "totalCallsTimeout",
+          "value": "0"
+        },
+        {
+          "name": "_GESPSK-uidapi.com",
+          "value": "[\"uidapi.com\",null,1750639555528,null,null,null,null,null,null,[100]]"
+        },
+        {
+          "name": "panoramaId_expiry",
+          "value": "1750725955516"
+        },
+        {
+          "name": "totalCalls",
+          "value": "0"
+        },
+        {
+          "name": "_GESPSK-id5-sync.com",
+          "value": "[\"id5-sync.com\",null,1750639556195,null,null,null,null,null,0,[106]]"
+        },
+        {
+          "name": "_GESPSK-esp.criteo.com",
+          "value": "[\"esp.criteo.com\",null,1750639555529,null,null,null,null,null,null,[100]]"
+        },
+        {
+          "name": "__VASTUtil__",
+          "value": "__VASTUtil__"
+        },
+        {
+          "name": "goog:cached:topics",
+          "value": "[null,1750639555976,3]"
+        },
+        {
+          "name": "_cc_id",
+          "value": "d85e7f78d2c7625123d18a8327839273"
+        },
+        {
+          "name": "panoramaId_expiry_exp",
+          "value": "1750725955516"
+        },
+        {
+          "name": "lastSuccessfullAd",
+          "value": "0"
+        },
+        {
+          "name": "_GESPSK-euid.eu",
+          "value": "[\"euid.eu\",null,1750639555529,null,null,null,null,null,null,[100]]"
+        },
+        {
+          "name": "_GESPSK-openx",
+          "value": "[\"openx\",\"eyJpIjoieUFXelJLMEhUUmk0czRWb3NQcmNodz09In0=\",1750639556431,null,null,null,null,null,0]"
+        },
+        {
+          "name": "_GESPSK-33across.com",
+          "value": "[\"33across.com\",null,1750639557558,null,null,null,null,null,0,[109]]"
+        },
+        {
+          "name": "_cc_id_update_ts",
+          "value": "1750639556315"
+        },
+        {
+          "name": "_GESPSK-rtbhouse",
+          "value": "[\"rtbhouse\",null,1750639555912,null,null,null,null,null,0,[106]]"
+        }
+      ]
+    }
+  ]
+}
