@@ -19,7 +19,7 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   let nBooks;
 
   await test.step('Capture response from a Bookstore', async () => {
-    await profilePage.goto(); //начинаю с профайл педж как после логина, чтобы дальше перейти на букстор и словить респонс
+    await profilePage.goto(); //начинаю с профайл пейдж как после логина, чтобы дальше перейти на букстор и словить респонс
     await expect(page.getByText('No rows found')).toBeVisible();
     responseBookstore = await bookstorePage.getBookstoreResponse();
   });
@@ -118,4 +118,19 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   await test.step('Make sure all books were deleted', async () => {
     await expect(page.getByText('No rows found')).toBeVisible();
   });
+});
+
+test.afterEach(async ({ context }) => {
+  const cookies = await context.cookies();
+  const userID = cookies.find((c) => c.name === 'userID')?.value;
+  const token = cookies.find((c) => c.name === 'token')?.value;
+  if (userID && token) {
+    await fetch(`https://demoqa.com/BookStore/v1/Books?UserId=${userID}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
 });
