@@ -4,8 +4,10 @@ import { ProfilePage } from '../pages/profilePage';
 import { DeletionDialog } from '../pages/deletionDialog';
 import { getRandom } from '../utils/getRandom';
 import { getCookies } from '../utils/getCookies';
-import { getBooksInfoIsbn } from '../utils/getBookInfoIsbn';
+import { getBooksInfoByIsbn } from '../utils/getBookInfoByIsbn';
 import { checkMessageOfConfirmDialog } from '../utils/checkConfirmDialogMessage';
+import { Book } from '../types/book';
+import { getRandomSlice } from '../utils/getRandomSlice';
 
 test('Adding books to profile and deleting them', async ({ page }) => {
   const bookstorePage = new BookstorePage(page);
@@ -18,8 +20,8 @@ test('Adding books to profile and deleting them', async ({ page }) => {
 
   await test.step('Capture response from a Bookstore', async () => {
     await profilePage.goto(); //начинаю с профайл педж как после логина, чтобы дальше перейти на букстор и словить респонс
-    await expect(page.getByText('No rows found')).toBeVisible(); //проверяю, что в профайле нет книг перед добавлением
-    responseBookstore = await bookstorePage.getBookstoreResponse(); //внутри метода переход на букстор и перехват респонса
+    await expect(page.getByText('No rows found')).toBeVisible(); //////////////////////////////
+    responseBookstore = await bookstorePage.getBookstoreResponse();
   });
 
   await test.step('Get amount of books to add to profile', async () => {
@@ -27,12 +29,12 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   });
 
   let isbnsArray: string[] = [];
-  await test.step('Get isbns of nBooks ', async () => {
+  await test.step('Get random isbns of nBooks', async () => {
     await expect(responseBookstore.ok()).toBeTruthy();
     const json = await responseBookstore.json();
-    for (let i = 0; i < nBooks; i++) {
-      isbnsArray[i] = json.books[i].isbn;
-    }
+
+    const allIsbns = json.books.map((book: Book) => book.isbn);
+    isbnsArray = await getRandomSlice(allIsbns, nBooks);
   });
 
   await test.step('Adding books to profile using API', async ({}) => {
@@ -53,30 +55,29 @@ test('Adding books to profile and deleting them', async ({ page }) => {
 
   let booksInfo;
   await test.step('Get title, author, publisher from Bookstore response', async () => {
-    booksInfo = await getBooksInfoIsbn(page.request, ['title', 'author', 'publisher'], isbnsArray);
+    booksInfo = await getBooksInfoByIsbn(
+      page.request,
+      ['title', 'author', 'publisher'],
+      isbnsArray,
+    );
   });
 
-  await test.step('Check title for each book', async () => {
-    for (let i = 0; i < nBooks; i++) {
-      await expect(profilePage.getTableCell(i + 1, 2)).toContainText(booksInfo[i].title.valueOf());
-    }
-  });
-
-  await test.step('Check author for each book', async () => {
-    for (let i = 0; i < nBooks; i++) {
-      await expect(profilePage.getTableCell(i + 1, 3)).toContainText(booksInfo[i].author.valueOf());
-    }
-  });
-
-  await test.step('Check publisher for each book', async () => {
-    for (let i = 0; i < nBooks; i++) {
-      await expect(profilePage.getTableCell(i + 1, 4)).toContainText(
-        booksInfo[i].publisher.valueOf(),
+  await test.step('Check title, author, publisher for each book', async () => {
+    for (const book of booksInfo) {
+      const row = await profilePage.getRowIndexByTitle(book.title.valueOf());
+      if (row === undefined) {
+        throw new Error(`Book with title "${book.title}" not found in profile`);
+      }
+      await expect(profilePage.getTableCellLocator(row!, 3)).toContainText(book.author.valueOf());
+      await expect(profilePage.getTableCellLocator(row!, 4)).toContainText(
+        book.publisher.valueOf(),
       );
     }
   });
 
+  let title2ndBook;
   await test.step('Delete the 2nd book', async () => {
+    title2ndBook = await profilePage.getTableCellLocator(2, 2).textContent();
     await profilePage.deleteBook(2);
   });
 
@@ -94,7 +95,7 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   });
 
   await test.step('Make sure the 2nd book was deleted', async () => {
-    await expect(profilePage.getTableCell(2, 2)).not.toContainText(booksInfo[1].title.valueOf());
+    await expect(profilePage.getTableCellLocator(2, 2)).not.toContainText(title2ndBook.valueOf());
   });
 
   await test.step('Delete all books', async () => {

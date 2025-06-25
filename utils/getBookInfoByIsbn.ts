@@ -1,7 +1,7 @@
 import { APIRequestContext } from '@playwright/test';
-import { Book } from '../types/Book';
+import { Book } from '../types/book';
 
-export async function getBooksInfoIsbn(
+export async function getBooksInfoByIsbn(
   request: APIRequestContext,
   fields: string[],
   isbns: string[],

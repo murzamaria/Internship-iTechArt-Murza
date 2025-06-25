@@ -17,17 +17,28 @@ export class ProfilePage extends BasePage {
     await super.goto('/profile');
   }
 
-  getRow(row: number) {
+  getRowLocator(row: number) {
     return this.page.locator('.rt-tr-group').nth(row - 1);
   }
 
-  getTableCell(row: number, column: number) {
-    return this.getRow(row)
+  getTableCellLocator(row: number, column: number) {
+    return this.getRowLocator(row)
       .locator('.rt-td')
       .nth(column - 1);
   }
 
   async deleteBook(row: number) {
-    await this.getRow(row).getByTitle('Delete', { exact: true }).click();
+    await this.getRowLocator(row).getByTitle('Delete', { exact: true }).click();
+  }
+
+  async getRowIndexByTitle(title: string): Promise<number | undefined> {
+    const rows = await this.bookItem.all();
+    for (let i = 1; i <= rows.length; i++) {
+      const cell = await this.getTableCellLocator(i, 2).textContent();
+      if (cell?.trim() == title) {
+        return i;
+      }
+    }
+    return undefined;
   }
 }
