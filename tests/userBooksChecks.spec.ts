@@ -20,7 +20,7 @@ test('Adding books to profile and deleting them', async ({ page }) => {
 
   await test.step('Capture response from a Bookstore', async () => {
     await profilePage.goto(); //начинаю с профайл педж как после логина, чтобы дальше перейти на букстор и словить респонс
-    await expect(page.getByText('No rows found')).toBeVisible(); //////////////////////////////
+    await expect(page.getByText('No rows found')).toBeVisible();
     responseBookstore = await bookstorePage.getBookstoreResponse();
   });
 
