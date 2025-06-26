@@ -3,5 +3,5 @@
 /test-results
 /playwright-report
 /screenshots
-/.auth
+playwright/.auth
 user.json
