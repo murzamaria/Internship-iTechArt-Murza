@@ -11,8 +11,8 @@ export default defineConfig({
   },
   fullyParallel: true,
   reporter: [['list'], ['html', { open: 'never' }]],
-  globalSetup: './tests/auth.setup.ts',
-  globalTeardown: './tests/globalTeardown.ts',
+  globalSetup: './config/auth.setup.ts',
+  globalTeardown: './config/globalTeardown.ts',
   use: {
     headless: true,
     trace: 'retain-on-failure',

@@ -1,4 +1,4 @@
-import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { BookstorePage } from '../pages/bookstorePage';
 import { ProfilePage } from '../pages/profilePage';
 import { DeletionDialog } from '../pages/deletionDialog';
@@ -9,7 +9,7 @@ import { checkMessageOfConfirmDialog } from '../utils/checkConfirmDialogMessage'
 import { Book } from '../types/book';
 import { getRandomSlice } from '../utils/getRandomSlice';
 
-test('Adding books to profile and deleting them', async ({ page }) => {
+test('Adding books to profile and deleting them', async ({ page, request }) => {
   const bookstorePage = new BookstorePage(page);
   const profilePage = new ProfilePage(page);
   const deletionDialog = new DeletionDialog(page);
@@ -38,10 +38,7 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   });
 
   await test.step('Adding books to profile using API', async ({}) => {
-    const apiContext = await playwrightRequest.newContext({
-      storageState: './.auth/user.json',
-    });
-    await bookstorePage.addBookToProfile(apiContext, token!, userID!, isbnsArray);
+    await bookstorePage.addBookToProfile(request, token!, userID!, isbnsArray);
   });
 
   await test.step('Refresh profile page', async () => {
@@ -120,13 +117,12 @@ test('Adding books to profile and deleting them', async ({ page }) => {
   });
 });
 
-test.afterEach(async ({ context }) => {
+test.afterEach(async ({ context, request }) => {
   const cookies = await context.cookies();
   const userID = cookies.find((c) => c.name === 'userID')?.value;
   const token = cookies.find((c) => c.name === 'token')?.value;
   if (userID && token) {
-    await fetch(`https://demoqa.com/BookStore/v1/Books?UserId=${userID}`, {
-      method: 'DELETE',
+    await request.delete(`https://demoqa.com/BookStore/v1/Books?UserId=${userID}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
