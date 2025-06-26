@@ -4,23 +4,24 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
-  testDir: 'tests',
+  testDir: './tests',
   timeout: 70 * 1000,
   expect: {
     timeout: 5000,
   },
   fullyParallel: true,
   reporter: [['list'], ['html', { open: 'never' }]],
-
+  globalSetup: './config/auth.setup.ts',
+  globalTeardown: './config/globalTeardown.ts',
   use: {
     headless: true,
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    //viewport: { width: 1280, height: 720 },
     launchOptions: {
       logger: new CustomLogger(),
     },
+    storageState: './.auth/user.json',
   },
 
   projects: [

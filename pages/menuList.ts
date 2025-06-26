@@ -9,12 +9,10 @@ export class Menu {
 
   constructor(page: Page) {
     this.page = page;
-    this.loginButton = page.locator('.menu-list').getByText('Login', { exact: true });
-    this.bookStoreButton = page.locator('.menu-list').getByText('Book Store', { exact: true });
-    this.profileButton = page.locator('.menu-list').getByText('Profile', { exact: true });
-    this.bookStoreApiButton = page
-      .locator('.menu-list')
-      .getByText('Book Store API', { exact: true });
+    this.loginButton = page.getByText('Login', { exact: true });
+    this.bookStoreButton = page.getByText('Book Store', { exact: true });
+    this.profileButton = page.getByText('Profile', { exact: true });
+    this.bookStoreApiButton = page.getByText('Book Store API', { exact: true });
   }
 
   async clickLogin() {
