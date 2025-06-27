@@ -3,16 +3,21 @@ import { CustomLogger } from './custom-logger';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const baseProject = {
+  dependencies: ['auth setup'],
+  use: {
+    storageState: './.auth/user.json',
+  },
+};
+
 export default defineConfig({
-  testDir: './tests',
+  testDir: '.',
   timeout: 70 * 1000,
   expect: {
     timeout: 5000,
   },
   fullyParallel: true,
   reporter: [['list'], ['html', { open: 'never' }]],
-  globalSetup: './config/auth.setup.ts',
-  globalTeardown: './config/globalTeardown.ts',
   use: {
     headless: true,
     trace: 'retain-on-failure',
@@ -21,26 +26,40 @@ export default defineConfig({
     launchOptions: {
       logger: new CustomLogger(),
     },
-    storageState: './.auth/user.json',
   },
 
   projects: [
     {
+      name: 'auth setup',
+      testMatch: /auth\.setup\.ts/,
+      teardown: 'auth teardown',
+    },
+    {
+      name: 'auth teardown',
+      testMatch: /auth\.teardown\.ts/,
+    },
+    {
+      ...baseProject,
       name: 'Chromium',
       use: {
+        ...baseProject.use,
         browserName: 'chromium',
       },
     },
     {
+      ...baseProject,
       name: 'Firefox',
       use: {
+        ...baseProject.use,
         browserName: 'firefox',
       },
     },
     {
+      ...baseProject,
       name: 'WebKit',
       timeout: 80 * 1000,
       use: {
+        ...baseProject.use,
         browserName: 'webkit',
       },
     },
