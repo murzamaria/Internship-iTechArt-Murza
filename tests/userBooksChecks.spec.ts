@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../config/fixtures';
 import { BookstorePage } from '../pages/bookstorePage';
 import { ProfilePage } from '../pages/profilePage';
 import { DeletionDialog } from '../pages/deletionDialog';
@@ -9,18 +9,31 @@ import { checkMessageOfConfirmDialog } from '../utils/checkConfirmDialogMessage'
 import { Book } from '../types/book';
 import { getRandomSlice } from '../utils/getRandomSlice';
 
-test('Adding books to profile and deleting them', async ({ page, request }) => {
-  const bookstorePage = new BookstorePage(page);
-  const profilePage = new ProfilePage(page);
-  const deletionDialog = new DeletionDialog(page);
-  const { userID, token } = await getCookies(page, ['userID', 'token']);
+test.afterEach(async ({ context, request }) => {
+  const cookies = await context.cookies();
+  const userID = cookies.find((c) => c.name === 'userID')?.value;
+  const token = cookies.find((c) => c.name === 'token')?.value;
+  if (userID && token) {
+    await request.delete(`https://demoqa.com/BookStore/v1/Books?UserId=${userID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+});
+
+test('Adding books to profile and deleting them', async ({ startPage, request }) => {
+  const bookstorePage = new BookstorePage(startPage);
+  const profilePage = new ProfilePage(startPage);
+  const deletionDialog = new DeletionDialog(startPage);
+  const { userID, token } = await getCookies(startPage, ['userID', 'token']);
 
   let responseBookstore;
   let nBooks;
 
   await test.step('Capture response from a Bookstore', async () => {
-    await profilePage.goto(); //начинаю с профайл пейдж как после логина, чтобы дальше перейти на букстор и словить респонс
-    await expect(page.getByText('No rows found')).toBeVisible();
+    await expect(startPage.getByText('No rows found')).toBeVisible();
     responseBookstore = await bookstorePage.getBookstoreResponse();
   });
 
@@ -53,7 +66,7 @@ test('Adding books to profile and deleting them', async ({ page, request }) => {
   let booksInfo;
   await test.step('Get title, author, publisher from Bookstore response', async () => {
     booksInfo = await getBooksInfoByIsbn(
-      page.request,
+      startPage.request,
       ['title', 'author', 'publisher'],
       isbnsArray,
     );
@@ -86,7 +99,7 @@ test('Adding books to profile and deleting them', async ({ page, request }) => {
   });
 
   await test.step('Check browser confirmation dialog after deleting a book', async () => {
-    const dialogPromise = checkMessageOfConfirmDialog(page, 'Book deleted.');
+    const dialogPromise = checkMessageOfConfirmDialog(startPage, 'Book deleted.');
     await deletionDialog.okButton.click();
     await dialogPromise;
   });
@@ -107,26 +120,12 @@ test('Adding books to profile and deleting them', async ({ page, request }) => {
   });
 
   await test.step('Check browser confirmation dialog after deleting all books', async () => {
-    const dialogPromise = checkMessageOfConfirmDialog(page, 'All Books deleted.');
+    const dialogPromise = checkMessageOfConfirmDialog(startPage, 'All Books deleted.');
     await deletionDialog.okButton.click();
     await dialogPromise;
   });
 
   await test.step('Make sure all books were deleted', async () => {
-    await expect(page.getByText('No rows found')).toBeVisible();
+    await expect(startPage.getByText('No rows found')).toBeVisible();
   });
-});
-
-test.afterEach(async ({ context, request }) => {
-  const cookies = await context.cookies();
-  const userID = cookies.find((c) => c.name === 'userID')?.value;
-  const token = cookies.find((c) => c.name === 'token')?.value;
-  if (userID && token) {
-    await request.delete(`https://demoqa.com/BookStore/v1/Books?UserId=${userID}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-  }
 });

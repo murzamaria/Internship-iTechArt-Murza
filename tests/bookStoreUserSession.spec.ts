@@ -1,7 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../config/fixtures';
 import { BookstorePage } from '../pages/bookstorePage';
 import { ProfilePage } from '../pages/profilePage';
-import { blockImages } from '../utils/blockImages';
 import { takeScreenshot } from '../utils/takeScreenshot';
 import { getRandom } from '../utils/getRandom';
 import { decodeTime } from '../utils/decodeTime';
@@ -9,9 +8,11 @@ import { getCookies } from '../utils/getCookies';
 import { getUserdata } from '../utils/getUserdata';
 import { modifyBookInfo } from '../utils/modifyBookInfo';
 
-test('Full session test: login, cookie validation, bookstore API&UI checks', async ({ page }) => {
-  const bookstorePage = new BookstorePage(page);
-  const profilePage = new ProfilePage(page);
+test('Full session test: login, cookie validation, bookstore API&UI checks', async ({
+  startPage,
+}) => {
+  const bookstorePage = new BookstorePage(startPage);
+  const profilePage = new ProfilePage(startPage);
 
   let userID;
   let userName;
@@ -19,13 +20,12 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   let token;
 
   await test.step('Check for successful login', async () => {
-    await profilePage.goto();
-    await expect(page).toHaveURL(`${process.env.BASE_URL!}/profile`);
+    await expect(startPage).toHaveURL(`${process.env.BASE_URL!}/profile`);
     await expect(profilePage.logoutButton).toBeEnabled();
   });
 
   await test.step('Get cookies values', async () => {
-    ({ userID, userName, expires, token } = await getCookies(page, [
+    ({ userID, userName, expires, token } = await getCookies(startPage, [
       'userID',
       'userName',
       'expires',
@@ -53,17 +53,13 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
     await expect(token).toMatch(/[a-zA-Z0-9]/);
   });
 
-  await test.step('Block images', async () => {
-    await blockImages(page);
-  });
-
   let responseBookstore;
   await test.step('Capture response from Bookstore', async () => {
     responseBookstore = await bookstorePage.getBookstoreResponse();
   });
 
   await test.step('Take screenshot', async () => {
-    await takeScreenshot(page);
+    await takeScreenshot(startPage);
   });
 
   await test.step('Check response and books amount', async () => {
@@ -75,7 +71,7 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
 
   await test.step('Modify book pages', async () => {
     const randomPages = await getRandom(1, 1000);
-    await modifyBookInfo(page, 'pages', randomPages);
+    await modifyBookInfo(startPage, 'pages', randomPages);
   });
 
   await test.step('Click random book', async () => {
@@ -85,7 +81,7 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   let responseUserdata;
 
   await test.step('Request for userdata', async () => {
-    responseUserdata = await getUserdata(page.request, userID, token);
+    responseUserdata = await getUserdata(startPage.request, userID, token);
   });
 
   await test.step('Check for successful userdata response', async () => {
