@@ -1,5 +1,6 @@
 import { test, expect } from '../config/fixtures';
 import { BookstorePage } from '../pages/bookstorePage';
+import { ProfilePage } from '../pages/profilePage';
 import { takeScreenshot } from '../utils/takeScreenshot';
 import { getRandom } from '../utils/getRandom';
 import { decodeTime } from '../utils/decodeTime';
@@ -10,19 +11,21 @@ import { modifyBookInfo } from '../utils/modifyBookInfo';
 test('Full session test: login, cookie validation, bookstore API&UI checks', async ({
   startPage,
 }) => {
-  const bookstorePage = new BookstorePage(startPage.page);
+  const bookstorePage = new BookstorePage(startPage);
+  const profilePage = new ProfilePage(startPage);
+
   let userID;
   let userName;
   let expires;
   let token;
 
   await test.step('Check for successful login', async () => {
-    await expect(startPage.page).toHaveURL(`${process.env.BASE_URL!}/profile`);
-    await expect(startPage.logoutButton).toBeEnabled();
+    await expect(startPage).toHaveURL(`${process.env.BASE_URL!}/profile`);
+    await expect(profilePage.logoutButton).toBeEnabled();
   });
 
   await test.step('Get cookies values', async () => {
-    ({ userID, userName, expires, token } = await getCookies(startPage.page, [
+    ({ userID, userName, expires, token } = await getCookies(startPage, [
       'userID',
       'userName',
       'expires',
@@ -56,7 +59,7 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   });
 
   await test.step('Take screenshot', async () => {
-    await takeScreenshot(startPage.page);
+    await takeScreenshot(startPage);
   });
 
   await test.step('Check response and books amount', async () => {
@@ -68,7 +71,7 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
 
   await test.step('Modify book pages', async () => {
     const randomPages = await getRandom(1, 1000);
-    await modifyBookInfo(startPage.page, 'pages', randomPages);
+    await modifyBookInfo(startPage, 'pages', randomPages);
   });
 
   await test.step('Click random book', async () => {
@@ -78,7 +81,7 @@ test('Full session test: login, cookie validation, bookstore API&UI checks', asy
   let responseUserdata;
 
   await test.step('Request for userdata', async () => {
-    responseUserdata = await getUserdata(startPage.page.request, userID, token);
+    responseUserdata = await getUserdata(startPage.request, userID, token);
   });
 
   await test.step('Check for successful userdata response', async () => {

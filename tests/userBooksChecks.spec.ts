@@ -1,5 +1,6 @@
 import { test, expect } from '../config/fixtures';
 import { BookstorePage } from '../pages/bookstorePage';
+import { ProfilePage } from '../pages/profilePage';
 import { DeletionDialog } from '../pages/deletionDialog';
 import { getRandom } from '../utils/getRandom';
 import { getCookies } from '../utils/getCookies';
@@ -23,15 +24,16 @@ test.afterEach(async ({ context, request }) => {
 });
 
 test('Adding books to profile and deleting them', async ({ startPage, request }) => {
-  const bookstorePage = new BookstorePage(startPage.page);
-  const deletionDialog = new DeletionDialog(startPage.page);
-  const { userID, token } = await getCookies(startPage.page, ['userID', 'token']);
+  const bookstorePage = new BookstorePage(startPage);
+  const profilePage = new ProfilePage(startPage);
+  const deletionDialog = new DeletionDialog(startPage);
+  const { userID, token } = await getCookies(startPage, ['userID', 'token']);
 
   let responseBookstore;
   let nBooks;
 
   await test.step('Capture response from a Bookstore', async () => {
-    await expect(startPage.page.getByText('No rows found')).toBeVisible();
+    await expect(startPage.getByText('No rows found')).toBeVisible();
     responseBookstore = await bookstorePage.getBookstoreResponse();
   });
 
@@ -53,18 +55,18 @@ test('Adding books to profile and deleting them', async ({ startPage, request })
   });
 
   await test.step('Refresh profile page', async () => {
-    await startPage.goto();
-    await expect(startPage.bookItem.first()).toBeVisible();
+    await profilePage.goto();
+    await expect(profilePage.bookItem.first()).toBeVisible();
   });
 
   await test.step('Check added books amount', async () => {
-    await expect(startPage.bookItem).toHaveCount(nBooks);
+    await expect(profilePage.bookItem).toHaveCount(nBooks);
   });
 
   let booksInfo;
   await test.step('Get title, author, publisher from Bookstore response', async () => {
     booksInfo = await getBooksInfoByIsbn(
-      startPage.page.request,
+      startPage.request,
       ['title', 'author', 'publisher'],
       isbnsArray,
     );
@@ -72,19 +74,21 @@ test('Adding books to profile and deleting them', async ({ startPage, request })
 
   await test.step('Check title, author, publisher for each book', async () => {
     for (const book of booksInfo) {
-      const row = await startPage.getRowIndexByTitle(book.title.valueOf());
+      const row = await profilePage.getRowIndexByTitle(book.title.valueOf());
       if (row === undefined) {
         throw new Error(`Book with title "${book.title}" not found in profile`);
       }
-      await expect(startPage.getTableCellLocator(row!, 3)).toContainText(book.author.valueOf());
-      await expect(startPage.getTableCellLocator(row!, 4)).toContainText(book.publisher.valueOf());
+      await expect(profilePage.getTableCellLocator(row!, 3)).toContainText(book.author.valueOf());
+      await expect(profilePage.getTableCellLocator(row!, 4)).toContainText(
+        book.publisher.valueOf(),
+      );
     }
   });
 
   let title2ndBook;
   await test.step('Delete the 2nd book', async () => {
-    title2ndBook = await startPage.getTableCellLocator(2, 2).textContent();
-    await startPage.deleteBook(2);
+    title2ndBook = await profilePage.getTableCellLocator(2, 2).textContent();
+    await profilePage.deleteBook(2);
   });
 
   await test.step('Check dialog after deleting a book', async () => {
@@ -95,17 +99,17 @@ test('Adding books to profile and deleting them', async ({ startPage, request })
   });
 
   await test.step('Check browser confirmation dialog after deleting a book', async () => {
-    const dialogPromise = checkMessageOfConfirmDialog(startPage.page, 'Book deleted.');
+    const dialogPromise = checkMessageOfConfirmDialog(startPage, 'Book deleted.');
     await deletionDialog.okButton.click();
     await dialogPromise;
   });
 
   await test.step('Make sure the 2nd book was deleted', async () => {
-    await expect(startPage.getTableCellLocator(2, 2)).not.toContainText(title2ndBook.valueOf());
+    await expect(profilePage.getTableCellLocator(2, 2)).not.toContainText(title2ndBook.valueOf());
   });
 
   await test.step('Delete all books', async () => {
-    await startPage.deleteAllBooksButton.click();
+    await profilePage.deleteAllBooksButton.click();
   });
 
   await test.step('Check dialog after deleting all books', async () => {
@@ -116,12 +120,12 @@ test('Adding books to profile and deleting them', async ({ startPage, request })
   });
 
   await test.step('Check browser confirmation dialog after deleting all books', async () => {
-    const dialogPromise = checkMessageOfConfirmDialog(startPage.page, 'All Books deleted.');
+    const dialogPromise = checkMessageOfConfirmDialog(startPage, 'All Books deleted.');
     await deletionDialog.okButton.click();
     await dialogPromise;
   });
 
   await test.step('Make sure all books were deleted', async () => {
-    await expect(startPage.page.getByText('No rows found')).toBeVisible();
+    await expect(startPage.getByText('No rows found')).toBeVisible();
   });
 });
